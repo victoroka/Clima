@@ -7,38 +7,33 @@
 //
 
 import UIKit
+import CoreLocation
 
-
-class WeatherViewController: UIViewController {
+class WeatherViewController: UIViewController, CLLocationManagerDelegate {
     
-    //Constants
+    let locationManager = CLLocationManager()
+    
+    // Constants
     let WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather"
-    let APP_ID = "e72ca729af228beabd5d20e3b7749713"
-    
+    let APP_ID = "ccb284379fb7f977d528a6bd74f0a811"
 
-    //TODO: Declare instance variables here
-    
-
-    
-    //Pre-linked IBOutlets
+    // Pre-linked IBOutlets
     @IBOutlet weak var weatherIcon: UIImageView!
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var temperatureLabel: UILabel!
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        //TODO:Set up the location manager here.
-    
-        
-        
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
     }
     
     
     
-    //MARK: - Networking
+    // MARK: - Networking
     /***************************************************************/
     
     //Write the getWeatherData method here:
@@ -49,7 +44,7 @@ class WeatherViewController: UIViewController {
     
     
     
-    //MARK: - JSON Parsing
+    // MARK: - JSON Parsing
     /***************************************************************/
    
     
@@ -59,7 +54,7 @@ class WeatherViewController: UIViewController {
     
     
     
-    //MARK: - UI Updates
+    // MARK: - UI Updates
     /***************************************************************/
     
     
@@ -70,21 +65,29 @@ class WeatherViewController: UIViewController {
     
     
     
-    //MARK: - Location Manager Delegate Methods
+    // MARK: - Location Manager Delegate Methods
     /***************************************************************/
     
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let location = locations[locations.count - 1]
+        if location.horizontalAccuracy > 0 {
+            locationManager.stopUpdatingLocation()
+            
+            print("Longitude = \(location.coordinate.longitude), Latitude = \(location.coordinate.latitude)")
+            
+            let latitude = String(location.coordinate.latitude)
+            let longitude = String(location.coordinate.longitude)
+            
+            let params: [String : String] = ["lat" : latitude, "lon" : longitude, "appid" : APP_ID]
+        }
+    }
     
-    //Write the didUpdateLocations method here:
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+        cityLabel.text = "Location Unavailable"
+    }
     
-    
-    
-    //Write the didFailWithError method here:
-    
-    
-    
-
-    
-    //MARK: - Change City Delegate methods
+    // MARK: - Change City Delegate methods
     /***************************************************************/
     
     
